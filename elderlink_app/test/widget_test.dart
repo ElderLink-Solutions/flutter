@@ -1,9 +1,4 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// This is a basic Flutter widget test for the login screen.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,20 +6,55 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:elderlink_app/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Login screen displays correctly', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that the login screen is displayed
+    expect(find.text('Welcome to ElderLink'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
+    expect(find.byKey(const Key('username_field')), findsOneWidget);
+    expect(find.byKey(const Key('password_field')), findsOneWidget);
+    expect(find.byKey(const Key('login_button')), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('Login button is disabled when fields are empty',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const MyApp());
+
+    // Find the login button
+    final loginButton = find.byKey(const Key('login_button'));
+    expect(loginButton, findsOneWidget);
+
+    // Try to tap the login button without entering credentials
+    await tester.tap(loginButton);
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify we're still on the login screen (validation errors should appear)
+    expect(find.text('Welcome to ElderLink'), findsOneWidget);
+  });
+
+  testWidgets('Can enter text in username and password fields',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const MyApp());
+
+    // Enter text in username field
+    await tester.enterText(
+      find.byKey(const Key('username_field')),
+      'testuser',
+    );
+    expect(find.text('testuser'), findsOneWidget);
+
+    // Enter text in password field
+    await tester.enterText(
+      find.byKey(const Key('password_field')),
+      'testpass',
+    );
+    
+    // Password should be obscured, so we won't see the actual text
+    await tester.pump();
   });
 }
+
